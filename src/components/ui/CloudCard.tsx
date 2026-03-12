@@ -23,7 +23,12 @@ export function CloudCard({ children, className = "", delay = 0 }: CloudCardProp
         y: -4,
         transition: { duration: 0.3 },
       }}
-      className={`glass cloud-shadow rounded-3xl p-8 transition-shadow hover:cloud-shadow-hover ${className}`}
+      className={`cloud-shadow transition-shadow hover:cloud-shadow-hover ${className}`}
+      style={{
+        background: "var(--color-bg-secondary)",
+        borderRadius: "var(--radius-xl)",
+        padding: "var(--space-8)",
+      }}
     >
       {children}
     </motion.div>

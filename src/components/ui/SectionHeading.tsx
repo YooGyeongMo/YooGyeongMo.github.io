@@ -14,15 +14,21 @@ export function SectionHeading({ title, subtitle }: SectionHeadingProps) {
       whileInView={{ y: 0, opacity: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="mb-12 text-center"
+      style={{ marginBottom: "var(--space-12)", textAlign: "center" }}
     >
-      <h2 className="text-4xl font-bold tracking-tight md:text-5xl">
+      <h2
+        className="font-bold tracking-tight"
+        style={{ fontSize: "var(--font-title-1)" }}
+      >
         {title}
       </h2>
       {subtitle && (
         <p
-          className="mt-4 text-lg"
-          style={{ color: "var(--color-text-secondary)" }}
+          style={{
+            marginTop: "var(--space-4)",
+            fontSize: "var(--font-callout)",
+            color: "var(--color-text-secondary)",
+          }}
         >
           {subtitle}
         </p>

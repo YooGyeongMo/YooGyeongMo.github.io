@@ -1,12 +1,16 @@
 export function Footer() {
   return (
     <footer
-      className="py-12 text-center text-sm"
-      style={{ color: "var(--color-text-secondary)" }}
+      className="section-container"
+      style={{
+        padding: "var(--space-12) var(--content-padding)",
+        textAlign: "center",
+        fontSize: "var(--font-footnote)",
+        color: "var(--color-text-tertiary)",
+        borderTop: "1px solid var(--color-separator)",
+      }}
     >
-      <div className="mx-auto max-w-6xl px-6">
-        <p>&copy; {new Date().getFullYear()} Demian YOO. All rights reserved.</p>
-      </div>
+      <p>&copy; {new Date().getFullYear()} Demian YOO. All rights reserved.</p>
     </footer>
   );
 }
