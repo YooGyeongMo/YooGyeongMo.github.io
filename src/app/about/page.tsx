@@ -75,141 +75,6 @@ function Reveal({
   );
 }
 
-/* ─── Scroll-Drawing Timeline ─── */
-
-function ScrollTimeline() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start 80%", "end 60%"],
-  });
-
-  return (
-    <div
-      ref={containerRef}
-      style={{
-        position: "relative",
-        paddingLeft: "clamp(48px, 8vw, 80px)",
-      }}
-    >
-      {/* Background track */}
-      <div
-        style={{
-          position: "absolute",
-          left: "clamp(20px, 4vw, 36px)",
-          top: 0,
-          bottom: 0,
-          width: "2px",
-          background: "var(--color-separator)",
-        }}
-      />
-
-      {/* Drawing line (accent, animates with scroll) */}
-      <motion.div
-        style={{
-          position: "absolute",
-          left: "clamp(20px, 4vw, 36px)",
-          top: 0,
-          bottom: 0,
-          width: "2px",
-          background: "var(--color-accent)",
-          scaleY: scrollYProgress,
-          transformOrigin: "top",
-        }}
-      />
-
-      {/* Milestones */}
-      {journey.map((item, i) => (
-        <motion.div
-          key={item.year}
-          initial={{ opacity: 0, x: -16 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.7, delay: 0.1, ease }}
-          style={{
-            paddingBottom: i < journey.length - 1 ? "clamp(48px, 8vh, 80px)" : "0",
-            position: "relative",
-          }}
-        >
-          {/* Dot */}
-          <motion.div
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5, delay: 0.2, ease }}
-            style={{
-              position: "absolute",
-              left: "calc(clamp(20px, 4vw, 36px) - clamp(48px, 8vw, 80px) - 6px)",
-              top: "6px",
-              width: "14px",
-              height: "14px",
-              borderRadius: "50%",
-              background: "var(--color-accent)",
-              border: "3px solid var(--color-bg)",
-              zIndex: 2,
-            }}
-          />
-
-          {/* Photo placeholder */}
-          <div
-            style={{
-              width: "100%",
-              maxWidth: "480px",
-              height: "clamp(200px, 30vw, 320px)",
-              borderRadius: "var(--radius-lg)",
-              background: "var(--color-bg-secondary)",
-              marginBottom: "var(--space-5)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "var(--font-footnote)",
-              color: "var(--color-text-tertiary)",
-              overflow: "hidden",
-              position: "relative",
-            }}
-          >
-            <span style={{ opacity: 0.4 }}>사진 추가</span>
-          </div>
-
-          {/* Text */}
-          <p
-            style={{
-              fontSize: "var(--font-subhead)",
-              color: "var(--color-accent)",
-              fontWeight: 600,
-              letterSpacing: "0.02em",
-            }}
-          >
-            {item.year}
-          </p>
-          <h3
-            className="font-bold"
-            style={{
-              fontSize: "clamp(1.5rem, 3vw, 2rem)",
-              letterSpacing: "-0.02em",
-              marginTop: "var(--space-1)",
-            }}
-          >
-            {item.title}
-          </h3>
-          <p
-            style={{
-              marginTop: "var(--space-2)",
-              fontSize: "var(--font-body)",
-              color: "var(--color-text-secondary)",
-              lineHeight: 1.7,
-              whiteSpace: "pre-line",
-              maxWidth: "400px",
-            }}
-          >
-            {item.desc}
-          </p>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
 /* ─── Radar Chart ─── */
 
 function RadarChart() {
@@ -285,6 +150,193 @@ function RadarChart() {
           </motion.text>
         ))}
       </svg>
+    </div>
+  );
+}
+
+/* ─── Horizontal Scroll Timeline with Drawing Line ─── */
+
+function HorizontalTimeline() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-55%"]);
+
+  return (
+    <div
+      ref={containerRef}
+      style={{ height: `${journey.length * 42}vh`, position: "relative" }}
+    >
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          overflow: "hidden",
+        }}
+      >
+        {/* Drawing line track */}
+        <div
+          style={{
+            position: "relative",
+            marginBottom: "var(--space-8)",
+            marginLeft: "8vw",
+            marginRight: "8vw",
+          }}
+        >
+          {/* Background track */}
+          <div
+            style={{
+              height: "2px",
+              background: "var(--color-separator)",
+              width: "100%",
+            }}
+          />
+          {/* Accent drawing line */}
+          <motion.div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              height: "2px",
+              width: "100%",
+              background: "var(--color-accent)",
+              scaleX: scrollYProgress,
+              transformOrigin: "left",
+            }}
+          />
+          {/* Dots along the line */}
+          {journey.map((_, i) => {
+            const position = `${(i / (journey.length - 1)) * 100}%`;
+            return (
+              <motion.div
+                key={i}
+                style={{
+                  position: "absolute",
+                  top: "-5px",
+                  left: position,
+                  transform: "translateX(-50%)",
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "50%",
+                  background: "var(--color-bg)",
+                  border: "2px solid var(--color-accent)",
+                  zIndex: 2,
+                }}
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.2 + i * 0.1, ease }}
+              />
+            );
+          })}
+        </div>
+
+        {/* Cards */}
+        <motion.div
+          style={{
+            x,
+            display: "flex",
+            gap: "var(--space-6)",
+            paddingLeft: "8vw",
+            paddingRight: "40vw",
+          }}
+        >
+          {journey.map((item, i) => (
+            <motion.div
+              key={item.year}
+              initial={{ opacity: 0, y: 30, scale: 0.96 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-20px" }}
+              transition={{
+                delay: i * 0.06,
+                duration: 0.7,
+                ease,
+              }}
+              style={{
+                minWidth: "340px",
+                maxWidth: "380px",
+                background: "var(--color-bg)",
+                borderRadius: "var(--radius-xl)",
+                overflow: "hidden",
+                flexShrink: 0,
+                display: "flex",
+                flexDirection: "column",
+              }}
+              className="cloud-shadow"
+            >
+              {/* Photo area */}
+              <div
+                style={{
+                  width: "100%",
+                  height: "220px",
+                  background: "var(--color-bg-secondary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "var(--font-footnote)",
+                  color: "var(--color-text-tertiary)",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: "48px",
+                    background: "linear-gradient(transparent, var(--color-bg))",
+                    zIndex: 1,
+                  }}
+                />
+                <span style={{ opacity: 0.4 }}>사진 추가</span>
+              </div>
+
+              {/* Content */}
+              <div style={{ padding: "var(--space-4) var(--space-6) var(--space-6)" }}>
+                <p
+                  style={{
+                    fontSize: "var(--font-caption)",
+                    color: "var(--color-accent)",
+                    fontWeight: 600,
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  {item.year}
+                </p>
+                <h3
+                  className="font-bold"
+                  style={{
+                    fontSize: "var(--font-title-2)",
+                    marginTop: "var(--space-1)",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {item.title}
+                </h3>
+                <p
+                  style={{
+                    marginTop: "var(--space-2)",
+                    fontSize: "var(--font-subhead)",
+                    color: "var(--color-text-secondary)",
+                    lineHeight: 1.6,
+                    whiteSpace: "pre-line",
+                  }}
+                >
+                  {item.desc}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
     </div>
   );
 }
@@ -374,11 +426,43 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── Life Journey (Scroll-drawing timeline) ── */}
-      <section style={{ padding: "var(--space-20) 0 var(--space-24)" }}>
+      {/* ── Life Journey (Horizontal + Drawing Line) ── */}
+      <section>
         <div
           className="section-container"
-          style={{ padding: "0 var(--content-padding)", maxWidth: "720px" }}
+          style={{ padding: "0 var(--content-padding) var(--space-2)" }}
+        >
+          <Reveal>
+            <p
+              style={{
+                fontSize: "var(--font-subhead)",
+                color: "var(--color-text-tertiary)",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                marginBottom: "var(--space-2)",
+              }}
+            >
+              Life Journey
+            </p>
+            <h2
+              className="font-bold"
+              style={{
+                fontSize: "clamp(2rem, 5vw, 3rem)",
+                letterSpacing: "-0.03em",
+              }}
+            >
+              걸어온 길
+            </h2>
+          </Reveal>
+        </div>
+        <HorizontalTimeline />
+      </section>
+
+      {/* ── Skills ── */}
+      <section style={{ padding: "var(--space-20) 0" }}>
+        <div
+          className="section-container"
+          style={{ padding: "0 var(--content-padding)", maxWidth: "680px" }}
         >
           <Reveal>
             <p
@@ -390,21 +474,35 @@ export default function AboutPage() {
                 marginBottom: "var(--space-3)",
               }}
             >
-              Life Journey
+              Skills
             </p>
             <h2
               className="font-bold"
               style={{
                 fontSize: "clamp(2rem, 5vw, 3rem)",
                 letterSpacing: "-0.03em",
-                marginBottom: "var(--space-12)",
               }}
             >
-              걸어온 길
+              Skills
             </h2>
           </Reveal>
 
-          <ScrollTimeline />
+          <RadarChart />
+
+          <Reveal>
+            <p
+              style={{
+                textAlign: "center",
+                fontSize: "var(--font-footnote)",
+                color: "var(--color-text-tertiary)",
+                marginTop: "var(--space-2)",
+              }}
+            >
+              Swift, UIKit, SwiftUI, CoreData, SwiftData, Combine, RxSwift, GCD,
+              async/await, Actor, MVC, MVVM, Clean Architecture, TCA, Xcode, Git,
+              Tuist, Fastlane, C++, Python
+            </p>
+          </Reveal>
         </div>
       </section>
 
@@ -494,54 +592,6 @@ export default function AboutPage() {
               </Reveal>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ── Skills ── */}
-      <section style={{ padding: "var(--space-20) 0" }}>
-        <div
-          className="section-container"
-          style={{ padding: "0 var(--content-padding)", maxWidth: "680px" }}
-        >
-          <Reveal>
-            <p
-              style={{
-                fontSize: "var(--font-subhead)",
-                color: "var(--color-text-tertiary)",
-                letterSpacing: "0.04em",
-                textTransform: "uppercase",
-                marginBottom: "var(--space-3)",
-              }}
-            >
-              Skills
-            </p>
-            <h2
-              className="font-bold"
-              style={{
-                fontSize: "clamp(2rem, 5vw, 3rem)",
-                letterSpacing: "-0.03em",
-              }}
-            >
-              Skills
-            </h2>
-          </Reveal>
-
-          <RadarChart />
-
-          <Reveal>
-            <p
-              style={{
-                textAlign: "center",
-                fontSize: "var(--font-footnote)",
-                color: "var(--color-text-tertiary)",
-                marginTop: "var(--space-2)",
-              }}
-            >
-              Swift, UIKit, SwiftUI, CoreData, SwiftData, Combine, RxSwift, GCD,
-              async/await, Actor, MVC, MVVM, Clean Architecture, TCA, Xcode, Git,
-              Tuist, Fastlane, C++, Python
-            </p>
-          </Reveal>
         </div>
       </section>
 
