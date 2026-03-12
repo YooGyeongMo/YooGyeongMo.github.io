@@ -4,18 +4,26 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { CloudCard } from "@/components/ui/CloudCard";
+import {
+  PuzzlePieceIcon,
+  CommandLineIcon,
+  DevicePhoneMobileIcon,
+  CpuChipIcon,
+  ArrowsRightLeftIcon,
+  PlayIcon,
+} from "@heroicons/react/24/outline";
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 /* ─── Data ─── */
 
 const categories = [
-  { title: "Algorithms", description: "문제 풀이에서 배운 개념과 접근법", href: "/til/algorithms", symbol: "function" },
-  { title: "Swift", description: "Swift 언어 깊이 파기", href: "/til/swift", symbol: "swift" },
-  { title: "iOS", description: "UIKit, SwiftUI, 아키텍처", href: "/til/ios", symbol: "iphone" },
-  { title: "CS", description: "자료구조, OS, 네트워크", href: "/til/cs", symbol: "cpu" },
-  { title: "Reactive", description: "Combine, RxSwift", href: "/til/reactive", symbol: "arrow.branch" },
-  { title: "WWDC", description: "WWDC 세션 정리", href: "/til/wwdc", symbol: "play.rectangle" },
+  { title: "Algorithms", description: "문제 풀이에서 배운 개념과 접근법", href: "/til?category=algorithms", Icon: PuzzlePieceIcon },
+  { title: "Swift", description: "Swift 언어 깊이 파기", href: "/til?category=swift", Icon: CommandLineIcon },
+  { title: "iOS", description: "UIKit, SwiftUI, 아키텍처", href: "/til?category=ios", Icon: DevicePhoneMobileIcon },
+  { title: "CS", description: "자료구조, OS, 네트워크", href: "/til?category=cs", Icon: CpuChipIcon },
+  { title: "Reactive", description: "Combine, RxSwift", href: "/til?category=reactive", Icon: ArrowsRightLeftIcon },
+  { title: "WWDC", description: "WWDC 세션 정리", href: "/til?category=wwdc", Icon: PlayIcon },
 ];
 
 /* ─── Page ─── */
@@ -53,7 +61,7 @@ export default function Home() {
             justifyContent: "flex-start",
             textAlign: "center",
             padding: "0 var(--content-padding)",
-            paddingTop: "20vh",
+            paddingTop: "15vh",
           }}
         >
           <motion.p
@@ -85,9 +93,7 @@ export default function Home() {
             &lsquo;배우&rsquo;는 개발자
             <br />
             <span style={{ color: "var(--color-accent)" }}>유경모</span>
-            <span style={{ color: "var(--color-text-secondary)", fontWeight: 400 }}>
-              입니다.
-            </span>
+            <span style={{ fontWeight: 400 }}>{" "}입니다.</span>
           </motion.h1>
 
           <motion.p
@@ -96,10 +102,10 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.9, ease }}
             style={{
               marginTop: "var(--space-6)",
-              fontSize: "var(--font-body)",
+              fontSize: "clamp(1.0625rem, 1.5vw, 1.375rem)",
               color: "var(--color-text-secondary)",
-              maxWidth: "420px",
-              lineHeight: 1.6,
+              maxWidth: "520px",
+              lineHeight: 1.7,
             }}
           >
             카메라 앞의 감정을 코드 위의 경험으로 바꿉니다.
@@ -107,11 +113,13 @@ export default function Home() {
             사용자의 마음을 읽고, 경험을 설계합니다.
           </motion.p>
 
+          {/* CTA Buttons — About + Portfolio */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.2 }}
-            style={{ marginTop: "var(--space-8)" }}
+            className="flex items-center"
+            style={{ marginTop: "var(--space-8)", gap: "var(--space-4)" }}
           >
             <Link
               href="/about"
@@ -124,7 +132,20 @@ export default function Home() {
                 display: "inline-block",
               }}
             >
-              더 알아보기
+              이야기 보기
+            </Link>
+            <Link
+              href="/portfolio"
+              className="font-medium transition-all hover:scale-105 active:scale-95 cloud-shadow"
+              style={{
+                background: "var(--color-bg)",
+                borderRadius: "980px",
+                padding: "var(--space-3) var(--space-10)",
+                fontSize: "var(--font-body)",
+                display: "inline-block",
+              }}
+            >
+              만든 것들
             </Link>
           </motion.div>
 
@@ -133,7 +154,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 2, duration: 1 }}
-            style={{ position: "absolute", bottom: "var(--space-10)" }}
+            style={{ position: "absolute", bottom: "var(--space-20)" }}
           >
             <motion.div
               animate={{ y: [0, 8, 0] }}
@@ -172,7 +193,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
+            viewport={{ once: false, margin: "-40px" }}
             transition={{ duration: 0.7, ease }}
           >
             <div style={{ textAlign: "center", marginBottom: "var(--space-8)" }}>
@@ -196,21 +217,19 @@ export default function Home() {
 
           <div
             className="grid gap-5 md:grid-cols-2 lg:grid-cols-3"
-            style={{ maxWidth: "820px", margin: "0 auto" }}
+            style={{ maxWidth: "960px", margin: "0 auto" }}
           >
             {categories.map((cat, i) => (
               <Link key={cat.href} href={cat.href}>
                 <CloudCard delay={i * 0.06}>
-                  <p
+                  <cat.Icon
                     style={{
-                      fontSize: "var(--font-caption)",
-                      color: "var(--color-text-tertiary)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
+                      width: "20px",
+                      height: "20px",
+                      color: "var(--color-accent)",
+                      strokeWidth: 1.5,
                     }}
-                  >
-                    {cat.symbol}
-                  </p>
+                  />
                   <h3
                     className="font-semibold"
                     style={{ fontSize: "var(--font-headline)", marginTop: "var(--space-3)" }}
@@ -230,65 +249,6 @@ export default function Home() {
               </Link>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ── Portfolio CTA ── */}
-      <section
-        style={{
-          padding: "var(--space-16) 0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          className="section-container"
-          style={{ padding: "0 var(--content-padding)", textAlign: "center" }}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.7, ease }}
-          >
-            <p
-              style={{
-                fontSize: "var(--font-footnote)",
-                color: "var(--color-text-tertiary)",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                marginBottom: "var(--space-4)",
-              }}
-            >
-              Portfolio
-            </p>
-            <h2
-              className="font-bold"
-              style={{
-                fontSize: "clamp(1.75rem, 4vw, 2.75rem)",
-                letterSpacing: "-0.03em",
-                lineHeight: 1.2,
-              }}
-            >
-              만들어온 것들을
-              <br />
-              확인해보세요.
-            </h2>
-            <Link
-              href="/portfolio"
-              className="inline-block font-medium text-white transition-all hover:scale-105 active:scale-95"
-              style={{
-                marginTop: "var(--space-8)",
-                background: "var(--color-accent)",
-                borderRadius: "980px",
-                padding: "var(--space-3) var(--space-10)",
-                fontSize: "var(--font-body)",
-              }}
-            >
-              Portfolio 보기
-            </Link>
-          </motion.div>
         </div>
       </section>
     </div>

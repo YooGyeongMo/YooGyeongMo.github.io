@@ -13,7 +13,7 @@ export function CloudCard({ children, className = "", delay = 0 }: CloudCardProp
     <motion.div
       initial={{ y: 30, opacity: 0 }}
       whileInView={{ y: 0, opacity: 1 }}
-      viewport={{ once: true, margin: "-50px" }}
+      viewport={{ once: false, margin: "-50px" }}
       transition={{
         duration: 0.7,
         delay,
