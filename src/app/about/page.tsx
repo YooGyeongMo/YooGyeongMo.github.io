@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 
 /* ─── Timeline Data ─── */
 
@@ -38,16 +38,18 @@ const timeline = [
   },
 ];
 
-const skills = [
-  { category: "Language", items: "Swift, C++, Python" },
-  { category: "iOS", items: "UIKit, SwiftUI, CoreData, SwiftData" },
-  { category: "Architecture", items: "MVC, MVVM, Clean Architecture, TCA" },
-  { category: "Reactive", items: "Combine, RxSwift" },
-  { category: "Tools", items: "Xcode, Git, Tuist, Fastlane" },
-  { category: "Concurrency", items: "GCD, async/await, Actor" },
+/* ─── Skills Radar Data ─── */
+
+const skillCategories = [
+  { label: "Swift", value: 0.9 },
+  { label: "iOS\nFramework", value: 0.85 },
+  { label: "Architecture", value: 0.75 },
+  { label: "Concurrency", value: 0.7 },
+  { label: "Reactive", value: 0.65 },
+  { label: "Tools", value: 0.7 },
 ];
 
-/* ─── Scroll Reveal ─── */
+/* ─── Scroll Reveal (wider trigger) ─── */
 
 function Reveal({
   children,
@@ -59,15 +61,161 @@ function Reveal({
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start 90%", "start 50%"],
+    offset: ["start 95%", "start 60%"],
   });
   const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  const y = useTransform(scrollYProgress, [0, 1], [30, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], [24, 0]);
 
   return (
     <motion.div ref={ref} style={{ opacity, y, ...style }}>
       {children}
     </motion.div>
+  );
+}
+
+/* ─── Radar Chart ─── */
+
+function RadarChart() {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  const cx = 200;
+  const cy = 200;
+  const levels = 4;
+  const maxR = 150;
+  const count = skillCategories.length;
+
+  function getPoint(index: number, radius: number) {
+    const angle = (Math.PI * 2 * index) / count - Math.PI / 2;
+    return {
+      x: cx + radius * Math.cos(angle),
+      y: cy + radius * Math.sin(angle),
+    };
+  }
+
+  // Grid polygons
+  const gridPolygons = Array.from({ length: levels }, (_, level) => {
+    const r = (maxR / levels) * (level + 1);
+    const points = Array.from({ length: count }, (_, i) => {
+      const p = getPoint(i, r);
+      return `${p.x},${p.y}`;
+    }).join(" ");
+    return points;
+  });
+
+  // Data polygon
+  const dataPoints = skillCategories.map((s, i) => {
+    const p = getPoint(i, maxR * s.value);
+    return `${p.x},${p.y}`;
+  }).join(" ");
+
+  // Axis lines
+  const axes = Array.from({ length: count }, (_, i) => {
+    const p = getPoint(i, maxR);
+    return { x1: cx, y1: cy, x2: p.x, y2: p.y };
+  });
+
+  // Labels
+  const labels = skillCategories.map((s, i) => {
+    const p = getPoint(i, maxR + 30);
+    return { ...s, x: p.x, y: p.y };
+  });
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        padding: "var(--space-8) 0",
+      }}
+    >
+      <svg viewBox="0 0 400 400" width="360" height="360">
+        {/* Grid */}
+        {gridPolygons.map((points, i) => (
+          <motion.polygon
+            key={i}
+            points={points}
+            fill="none"
+            stroke="var(--color-separator)"
+            strokeWidth="1"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={isInView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 0.6, delay: i * 0.1 }}
+            style={{ transformOrigin: `${cx}px ${cy}px` }}
+          />
+        ))}
+
+        {/* Axes */}
+        {axes.map((axis, i) => (
+          <motion.line
+            key={i}
+            x1={axis.x1}
+            y1={axis.y1}
+            x2={axis.x2}
+            y2={axis.y2}
+            stroke="var(--color-separator)"
+            strokeWidth="1"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={isInView ? { pathLength: 1, opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.3 + i * 0.05 }}
+          />
+        ))}
+
+        {/* Data area */}
+        <motion.polygon
+          points={dataPoints}
+          fill="var(--color-accent)"
+          fillOpacity="0.15"
+          stroke="var(--color-accent)"
+          strokeWidth="2"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={isInView ? { scale: 1, opacity: 1 } : {}}
+          transition={{ duration: 1, delay: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          style={{ transformOrigin: `${cx}px ${cy}px` }}
+        />
+
+        {/* Data points */}
+        {skillCategories.map((s, i) => {
+          const p = getPoint(i, maxR * s.value);
+          return (
+            <motion.circle
+              key={i}
+              cx={p.x}
+              cy={p.y}
+              r="5"
+              fill="var(--color-accent)"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={isInView ? { scale: 1, opacity: 1 } : {}}
+              transition={{ duration: 0.4, delay: 0.8 + i * 0.08 }}
+            />
+          );
+        })}
+
+        {/* Labels */}
+        {labels.map((label, i) => (
+          <motion.text
+            key={i}
+            x={label.x}
+            y={label.y}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill="var(--color-text-secondary)"
+            fontSize="11"
+            fontFamily="-apple-system, BlinkMacSystemFont, sans-serif"
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.5, delay: 1 + i * 0.05 }}
+          >
+            {label.label.split("\n").map((line, j) => (
+              <tspan key={j} x={label.x} dy={j === 0 ? 0 : 14}>
+                {line}
+              </tspan>
+            ))}
+          </motion.text>
+        ))}
+      </svg>
+    </div>
   );
 }
 
@@ -84,7 +232,7 @@ function HorizontalTimeline() {
   return (
     <div
       ref={containerRef}
-      style={{ height: `${timeline.length * 40}vh`, position: "relative" }}
+      style={{ height: `${timeline.length * 35}vh`, position: "relative" }}
     >
       <div
         style={{
@@ -100,7 +248,7 @@ function HorizontalTimeline() {
           style={{
             x,
             display: "flex",
-            gap: "var(--space-8)",
+            gap: "var(--space-6)",
             paddingLeft: "var(--content-padding)",
             paddingRight: "40vw",
           }}
@@ -113,24 +261,23 @@ function HorizontalTimeline() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.05, duration: 0.5 }}
               style={{
-                minWidth: "320px",
-                maxWidth: "360px",
+                minWidth: "280px",
+                maxWidth: "320px",
                 background: "var(--color-bg-secondary)",
                 borderRadius: "var(--radius-xl)",
-                padding: "var(--space-10)",
+                padding: "var(--space-8)",
                 flexShrink: 0,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
-                minHeight: "400px",
+                minHeight: "360px",
               }}
               className="cloud-shadow"
             >
-              {/* Photo placeholder */}
               <div
                 style={{
                   width: "100%",
-                  height: "180px",
+                  height: "160px",
                   borderRadius: "var(--radius-md)",
                   background: "var(--color-bg)",
                   display: "flex",
@@ -144,7 +291,7 @@ function HorizontalTimeline() {
                 사진 추가
               </div>
 
-              <div style={{ marginTop: "var(--space-8)" }}>
+              <div style={{ marginTop: "var(--space-6)" }}>
                 <p
                   style={{
                     fontSize: "var(--font-caption)",
@@ -158,15 +305,15 @@ function HorizontalTimeline() {
                 <h3
                   className="font-semibold"
                   style={{
-                    fontSize: "var(--font-title-2)",
-                    marginTop: "var(--space-2)",
+                    fontSize: "var(--font-title-3)",
+                    marginTop: "var(--space-1)",
                   }}
                 >
                   {item.title}
                 </h3>
                 <p
                   style={{
-                    marginTop: "var(--space-2)",
+                    marginTop: "var(--space-1)",
                     fontSize: "var(--font-subhead)",
                     color: "var(--color-text-secondary)",
                     lineHeight: 1.5,
@@ -188,10 +335,10 @@ function HorizontalTimeline() {
 export default function AboutPage() {
   return (
     <div>
-      {/* ── Section 1: Intro ── */}
+      {/* ── Intro ── */}
       <section
         style={{
-          minHeight: "100vh",
+          height: "100vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -205,13 +352,14 @@ export default function AboutPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             style={{
-              fontSize: "var(--font-callout)",
+              fontSize: "var(--font-footnote)",
               color: "var(--color-text-tertiary)",
-              letterSpacing: "0.04em",
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
               marginBottom: "var(--space-5)",
             }}
           >
-            ABOUT
+            About
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, scale: 0.96 }}
@@ -238,7 +386,8 @@ export default function AboutPage() {
               fontSize: "var(--font-body)",
               color: "var(--color-text-secondary)",
               maxWidth: "420px",
-              margin: "var(--space-6) auto 0",
+              marginLeft: "auto",
+              marginRight: "auto",
               lineHeight: 1.7,
             }}
           >
@@ -251,13 +400,11 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── Section 2: Horizontal Timeline ── */}
+      {/* ── Timeline ── */}
       <section>
         <div
           className="section-container"
-          style={{
-            padding: "var(--space-16) var(--content-padding) var(--space-8)",
-          }}
+          style={{ padding: "var(--space-8) var(--content-padding) var(--space-4)" }}
         >
           <Reveal>
             <p
@@ -273,10 +420,7 @@ export default function AboutPage() {
             </p>
             <h2
               className="font-bold"
-              style={{
-                fontSize: "var(--font-title-1)",
-                letterSpacing: "-0.02em",
-              }}
+              style={{ fontSize: "var(--font-title-1)", letterSpacing: "-0.02em" }}
             >
               지나온 길
             </h2>
@@ -285,19 +429,16 @@ export default function AboutPage() {
         <HorizontalTimeline />
       </section>
 
-      {/* ── Section 3: Philosophy (Dark) ── */}
+      {/* ── Philosophy (Dark) ── */}
       <section
         style={{
           background: "var(--color-bg-dark)",
-          padding: "var(--space-24) 0",
+          padding: "var(--space-16) 0",
         }}
       >
         <div
           className="section-container"
-          style={{
-            padding: "0 var(--content-padding)",
-            maxWidth: "640px",
-          }}
+          style={{ padding: "0 var(--content-padding)", maxWidth: "640px" }}
         >
           <Reveal>
             <p
@@ -306,142 +447,78 @@ export default function AboutPage() {
                 color: "var(--color-text-secondary-on-dark)",
                 letterSpacing: "0.06em",
                 textTransform: "uppercase",
-                marginBottom: "var(--space-8)",
+                marginBottom: "var(--space-6)",
               }}
             >
               Philosophy
             </p>
           </Reveal>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-12)" }}>
-            <Reveal>
-              <h3
-                className="font-semibold"
-                style={{
-                  fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)",
-                  color: "var(--color-text-on-dark)",
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1.3,
-                }}
-              >
-                AI가 코드를 쓰는 시대,
-                <br />
-                <span style={{ color: "var(--color-accent)" }}>
-                  진짜 의사결정
-                </span>
-                은
-                <br />
-                개발자의 몫입니다.
-              </h3>
-            </Reveal>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-8)" }}>
-              {[
-                {
-                  keyword: "문제 정의",
-                  text: "코드를 쓰기 전에, 무엇을 풀어야 하는지 먼저 묻습니다.",
-                },
-                {
-                  keyword: "현장의 목소리",
-                  text: "실제 사용자를 만나고, 그들의 이야기에서 답을 찾습니다.",
-                },
-                {
-                  keyword: "기본기",
-                  text: "도구는 바뀌어도 본질은 바뀌지 않습니다. 기본기가 답입니다.",
-                },
-              ].map((item) => (
-                <Reveal key={item.keyword}>
-                  <div
-                    style={{
-                      borderLeft: "2px solid var(--color-accent)",
-                      paddingLeft: "var(--space-6)",
-                    }}
-                  >
-                    <p
-                      className="font-semibold"
-                      style={{
-                        fontSize: "var(--font-headline)",
-                        color: "var(--color-text-on-dark)",
-                      }}
-                    >
-                      {item.keyword}
-                    </p>
-                    <p
-                      style={{
-                        marginTop: "var(--space-2)",
-                        fontSize: "var(--font-subhead)",
-                        color: "var(--color-text-secondary-on-dark)",
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      {item.text}
-                    </p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Section 4: Skills ── */}
-      <section
-        style={{
-          padding: "var(--space-24) 0",
-        }}
-      >
-        <div
-          className="section-container"
-          style={{
-            padding: "0 var(--content-padding)",
-            maxWidth: "640px",
-          }}
-        >
           <Reveal>
-            <p
+            <h3
+              className="font-semibold"
               style={{
-                fontSize: "var(--font-footnote)",
-                color: "var(--color-text-tertiary)",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                marginBottom: "var(--space-8)",
+                fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)",
+                color: "var(--color-text-on-dark)",
+                letterSpacing: "-0.02em",
+                lineHeight: 1.3,
               }}
             >
-              Skills
-            </p>
+              AI가 코드를 쓰는 시대,
+              <br />
+              <span style={{ color: "var(--color-accent)" }}>진짜 의사결정</span>은
+              <br />
+              개발자의 몫입니다.
+            </h3>
           </Reveal>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
-            {skills.map((skill) => (
-              <Reveal key={skill.category}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-6)",
+              marginTop: "var(--space-10)",
+            }}
+          >
+            {[
+              {
+                keyword: "문제 정의",
+                text: "코드를 쓰기 전에, 무엇을 풀어야 하는지 먼저 묻습니다.",
+              },
+              {
+                keyword: "현장의 목소리",
+                text: "실제 사용자를 만나고, 그들의 이야기에서 답을 찾습니다.",
+              },
+              {
+                keyword: "기본기",
+                text: "도구는 바뀌어도 본질은 바뀌지 않습니다. 기본기가 답입니다.",
+              },
+            ].map((item) => (
+              <Reveal key={item.keyword}>
                 <div
                   style={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    gap: "var(--space-6)",
-                    paddingBottom: "var(--space-6)",
-                    borderBottom: "1px solid var(--color-separator)",
+                    borderLeft: "2px solid var(--color-accent)",
+                    paddingLeft: "var(--space-5)",
                   }}
                 >
                   <p
-                    className="font-medium"
+                    className="font-semibold"
                     style={{
-                      fontSize: "var(--font-subhead)",
-                      color: "var(--color-text-primary)",
-                      minWidth: "120px",
-                      flexShrink: 0,
+                      fontSize: "var(--font-headline)",
+                      color: "var(--color-text-on-dark)",
                     }}
                   >
-                    {skill.category}
+                    {item.keyword}
                   </p>
                   <p
                     style={{
+                      marginTop: "var(--space-1)",
                       fontSize: "var(--font-subhead)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-text-secondary-on-dark)",
                       lineHeight: 1.6,
                     }}
                   >
-                    {skill.items}
+                    {item.text}
                   </p>
                 </div>
               </Reveal>
@@ -450,36 +527,77 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── Section 5: Contact ── */}
+      {/* ── Skills Radar ── */}
+      <section
+        style={{ padding: "var(--space-16) 0" }}
+      >
+        <div
+          className="section-container"
+          style={{ padding: "0 var(--content-padding)", maxWidth: "640px" }}
+        >
+          <Reveal>
+            <p
+              style={{
+                fontSize: "var(--font-footnote)",
+                color: "var(--color-text-tertiary)",
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                marginBottom: "var(--space-2)",
+              }}
+            >
+              Skills
+            </p>
+            <h2
+              className="font-bold"
+              style={{ fontSize: "var(--font-title-1)", letterSpacing: "-0.02em" }}
+            >
+              강점
+            </h2>
+          </Reveal>
+
+          <RadarChart />
+
+          <Reveal>
+            <p
+              style={{
+                textAlign: "center",
+                fontSize: "var(--font-footnote)",
+                color: "var(--color-text-tertiary)",
+                marginTop: "var(--space-4)",
+              }}
+            >
+              Swift, UIKit, SwiftUI, CoreData, SwiftData, Combine, RxSwift,
+              GCD, async/await, Actor, MVC, MVVM, Clean Architecture, TCA,
+              Xcode, Git, Tuist, Fastlane, C++, Python
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── Contact ── */}
       <section
         style={{
           background: "var(--color-bg-secondary)",
-          padding: "var(--space-24) 0",
+          padding: "var(--space-16) 0",
         }}
       >
         <div
           className="section-container"
-          style={{
-            padding: "0 var(--content-padding)",
-            textAlign: "center",
-          }}
+          style={{ padding: "0 var(--content-padding)", textAlign: "center" }}
         >
           <Reveal>
             <h2
               className="font-bold"
-              style={{
-                fontSize: "var(--font-title-1)",
-                letterSpacing: "-0.02em",
-              }}
+              style={{ fontSize: "var(--font-title-1)", letterSpacing: "-0.02em" }}
             >
               함께 이야기해요.
             </h2>
             <div
               style={{
-                marginTop: "var(--space-8)",
+                marginTop: "var(--space-6)",
                 display: "flex",
                 justifyContent: "center",
-                gap: "var(--space-6)",
+                gap: "var(--space-4)",
               }}
             >
               <a
