@@ -10,5 +10,5 @@ export default async function ProjectDetailPage({ params }: Props) {
 }
 
 export function generateStaticParams() {
-  return [{ slug: "susa24" }];
+  return [{ slug: "susa24" }, { slug: "synctank" }, { slug: "naru" }];
 }

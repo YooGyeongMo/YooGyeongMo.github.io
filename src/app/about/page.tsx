@@ -12,31 +12,37 @@ const journey = [
     year: "2018",
     title: "배우",
     desc: "카메라 앞에서 감정을 전달하던 시절.\n대사 한 줄, 표정 하나에 진심을 담았습니다.",
+    projects: [],
   },
   {
     year: "2020",
     title: "전환",
     desc: "코드라는 새로운 언어를 만났습니다.\n화면 너머의 세계가 열렸습니다.",
+    projects: [],
   },
   {
     year: "2022",
-    title: "연사",
-    desc: "무대 위에서 기술을 이야기했습니다.\n사람들 앞에 서는 건 여전히 익숙합니다.",
+    title: "첫 프로젝트",
+    desc: "Python으로 IoT 스마트 빌리지를 만들며\n개발의 재미를 알았습니다.",
+    projects: ["Village of IoT"],
   },
   {
     year: "2023",
-    title: "Apple",
-    desc: "Apple로부터 직접 피드백을 받았습니다.\n더 깊이 파고들 이유가 생겼습니다.",
+    title: "Android",
+    desc: "Kotlin으로 STARTMATCH, CollaB를 만들며\n팀 리드로 프로젝트를 이끌었습니다.",
+    projects: ["STARTMATCH", "CollaB"],
   },
   {
     year: "2024",
-    title: "해커톤",
-    desc: "48시간, 팀과 함께 문제를 풀었습니다.\n한계는 늘 팀에서 넓어졌습니다.",
+    title: "확장",
+    desc: "React로 Safety Paris를 만들고,\nApple Developer Academy에 합류했습니다.",
+    projects: ["Safety Paris", "Apple Developer Academy"],
   },
   {
-    year: "Now",
-    title: "개발자",
-    desc: "매일 성장하는 iOS 개발자.\n어제보다 나은 코드를 씁니다.",
+    year: "2025",
+    title: "iOS 개발자",
+    desc: "SUSA24, Naru, SyncTank을 만들며\nJunction Asia 우승, 핀란드 세계대회까지.",
+    projects: ["SUSA24", "Naru", "SyncTank", "HeiLocal"],
   },
 ];
 
@@ -162,12 +168,14 @@ function HorizontalTimeline() {
     target: containerRef,
     offset: ["start start", "end end"],
   });
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-55%"]);
+  // Slower, smoother line drawing
+  const lineProgress = useTransform(scrollYProgress, [0, 0.85], [0, 1]);
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
 
   return (
     <div
       ref={containerRef}
-      style={{ height: `${journey.length * 42}vh`, position: "relative" }}
+      style={{ height: `${journey.length * 50}vh`, position: "relative" }}
     >
       <div
         style={{
@@ -180,23 +188,17 @@ function HorizontalTimeline() {
           overflow: "hidden",
         }}
       >
-        {/* Drawing line track */}
+        {/* Drawing line + year labels */}
         <div
           style={{
             position: "relative",
-            marginBottom: "var(--space-8)",
+            marginBottom: "var(--space-10)",
             marginLeft: "8vw",
             marginRight: "8vw",
           }}
         >
           {/* Background track */}
-          <div
-            style={{
-              height: "2px",
-              background: "var(--color-separator)",
-              width: "100%",
-            }}
-          />
+          <div style={{ height: "2px", background: "var(--color-separator)", width: "100%" }} />
           {/* Accent drawing line */}
           <motion.div
             style={{
@@ -206,33 +208,48 @@ function HorizontalTimeline() {
               height: "2px",
               width: "100%",
               background: "var(--color-accent)",
-              scaleX: scrollYProgress,
+              scaleX: lineProgress,
               transformOrigin: "left",
             }}
           />
-          {/* Dots along the line */}
-          {journey.map((_, i) => {
-            const position = `${(i / (journey.length - 1)) * 100}%`;
+          {/* Dots + year labels */}
+          {journey.map((item, i) => {
+            const pct = `${(i / (journey.length - 1)) * 100}%`;
             return (
-              <motion.div
-                key={i}
-                style={{
-                  position: "absolute",
-                  top: "-5px",
-                  left: position,
-                  transform: "translateX(-50%)",
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "50%",
-                  background: "var(--color-bg)",
-                  border: "2px solid var(--color-accent)",
-                  zIndex: 2,
-                }}
-                initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.2 + i * 0.1, ease }}
-              />
+              <div key={i} style={{ position: "absolute", top: "-6px", left: pct, transform: "translateX(-50%)" }}>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.3 + i * 0.12, ease }}
+                  style={{
+                    width: "14px",
+                    height: "14px",
+                    borderRadius: "50%",
+                    background: "var(--color-accent)",
+                    border: "3px solid var(--color-bg)",
+                    zIndex: 2,
+                  }}
+                />
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: 0.4 + i * 0.12 }}
+                  style={{
+                    position: "absolute",
+                    top: "-24px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    fontSize: "var(--font-caption)",
+                    color: "var(--color-accent)",
+                    fontWeight: 600,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {item.year}
+                </motion.p>
+              </div>
             );
           })}
         </div>
@@ -242,7 +259,7 @@ function HorizontalTimeline() {
           style={{
             x,
             display: "flex",
-            gap: "var(--space-6)",
+            gap: "var(--space-8)",
             paddingLeft: "8vw",
             paddingRight: "40vw",
           }}
@@ -250,17 +267,13 @@ function HorizontalTimeline() {
           {journey.map((item, i) => (
             <motion.div
               key={item.year}
-              initial={{ opacity: 0, y: 30, scale: 0.96 }}
+              initial={{ opacity: 0, y: 40, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, margin: "-20px" }}
-              transition={{
-                delay: i * 0.06,
-                duration: 0.7,
-                ease,
-              }}
+              transition={{ delay: i * 0.08, duration: 0.8, ease }}
               style={{
-                minWidth: "340px",
-                maxWidth: "380px",
+                minWidth: "380px",
+                maxWidth: "420px",
                 background: "var(--color-bg)",
                 borderRadius: "var(--radius-xl)",
                 overflow: "hidden",
@@ -274,7 +287,7 @@ function HorizontalTimeline() {
               <div
                 style={{
                   width: "100%",
-                  height: "220px",
+                  height: "260px",
                   background: "var(--color-bg-secondary)",
                   display: "flex",
                   alignItems: "center",
@@ -291,7 +304,7 @@ function HorizontalTimeline() {
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    height: "48px",
+                    height: "60px",
                     background: "linear-gradient(transparent, var(--color-bg))",
                     zIndex: 1,
                   }}
@@ -300,22 +313,11 @@ function HorizontalTimeline() {
               </div>
 
               {/* Content */}
-              <div style={{ padding: "var(--space-4) var(--space-6) var(--space-6)" }}>
-                <p
-                  style={{
-                    fontSize: "var(--font-caption)",
-                    color: "var(--color-accent)",
-                    fontWeight: 600,
-                    letterSpacing: "0.04em",
-                  }}
-                >
-                  {item.year}
-                </p>
+              <div style={{ padding: "var(--space-5) var(--space-6) var(--space-6)" }}>
                 <h3
                   className="font-bold"
                   style={{
                     fontSize: "var(--font-title-2)",
-                    marginTop: "var(--space-1)",
                     letterSpacing: "-0.02em",
                   }}
                 >
@@ -324,14 +326,38 @@ function HorizontalTimeline() {
                 <p
                   style={{
                     marginTop: "var(--space-2)",
-                    fontSize: "var(--font-subhead)",
+                    fontSize: "var(--font-body)",
                     color: "var(--color-text-secondary)",
-                    lineHeight: 1.6,
+                    lineHeight: 1.7,
                     whiteSpace: "pre-line",
                   }}
                 >
                   {item.desc}
                 </p>
+
+                {/* Project tags */}
+                {item.projects.length > 0 && (
+                  <div
+                    className="flex flex-wrap"
+                    style={{ marginTop: "var(--space-4)", gap: "var(--space-2)" }}
+                  >
+                    {item.projects.map((p) => (
+                      <span
+                        key={p}
+                        style={{
+                          fontSize: "var(--font-caption)",
+                          color: "var(--color-accent)",
+                          background: "var(--color-accent-subtle)",
+                          padding: "2px var(--space-3)",
+                          borderRadius: "var(--radius-sm)",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}
