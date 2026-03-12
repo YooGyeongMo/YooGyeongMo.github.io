@@ -133,11 +133,12 @@ export default function ProjectDetailClient({ slug }: { slug: string }) {
         style={{
           minHeight: "100vh",
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-start",
           justifyContent: "center",
           background: "var(--color-bg-dark)",
           textAlign: "center",
           padding: "0 var(--content-padding)",
+          paddingTop: "calc(var(--nav-height) + 10vh)",
         }}
       >
         <div>

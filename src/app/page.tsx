@@ -5,73 +5,18 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { CloudCard } from "@/components/ui/CloudCard";
 
-const revealTransition = { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const };
+const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 /* ─── Data ─── */
 
 const categories = [
-  {
-    title: "Algorithms",
-    description: "문제 풀이에서 배운 개념과 접근법",
-    href: "/til/algorithms",
-    symbol: "function",
-  },
-  {
-    title: "Swift",
-    description: "Swift 언어 깊이 파기",
-    href: "/til/swift",
-    symbol: "swift",
-  },
-  {
-    title: "iOS",
-    description: "UIKit, SwiftUI, 아키텍처",
-    href: "/til/ios",
-    symbol: "iphone",
-  },
-  {
-    title: "CS",
-    description: "자료구조, OS, 네트워크",
-    href: "/til/cs",
-    symbol: "cpu",
-  },
-  {
-    title: "Reactive",
-    description: "Combine, RxSwift",
-    href: "/til/reactive",
-    symbol: "arrow.branch",
-  },
-  {
-    title: "WWDC",
-    description: "WWDC 세션 정리",
-    href: "/til/wwdc",
-    symbol: "play.rectangle",
-  },
+  { title: "Algorithms", description: "문제 풀이에서 배운 개념과 접근법", href: "/til/algorithms", symbol: "function" },
+  { title: "Swift", description: "Swift 언어 깊이 파기", href: "/til/swift", symbol: "swift" },
+  { title: "iOS", description: "UIKit, SwiftUI, 아키텍처", href: "/til/ios", symbol: "iphone" },
+  { title: "CS", description: "자료구조, OS, 네트워크", href: "/til/cs", symbol: "cpu" },
+  { title: "Reactive", description: "Combine, RxSwift", href: "/til/reactive", symbol: "arrow.branch" },
+  { title: "WWDC", description: "WWDC 세션 정리", href: "/til/wwdc", symbol: "play.rectangle" },
 ];
-
-/* ─── Reveal (whileInView — always reaches full opacity) ─── */
-
-function RevealText({
-  children,
-  className,
-  style,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={revealTransition}
-      style={style}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
 
 /* ─── Page ─── */
 
@@ -87,7 +32,7 @@ export default function Home() {
 
   return (
     <div>
-      {/* ── Section 1: Hero ── */}
+      {/* ── Hero ── */}
       <section
         ref={heroRef}
         style={{
@@ -105,16 +50,16 @@ export default function Home() {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "flex-start",
             textAlign: "center",
             padding: "0 var(--content-padding)",
-            marginTop: "-3vh",
+            paddingTop: "20vh",
           }}
         >
           <motion.p
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.8, delay: 0.2, ease }}
             style={{
               fontSize: "var(--font-title-3)",
               color: "var(--color-text-secondary)",
@@ -129,7 +74,7 @@ export default function Home() {
           <motion.h1
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 1, delay: 0.5, ease }}
             className="font-bold"
             style={{
               fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
@@ -145,11 +90,28 @@ export default function Home() {
             </span>
           </motion.h1>
 
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.9, ease }}
+            style={{
+              marginTop: "var(--space-6)",
+              fontSize: "var(--font-body)",
+              color: "var(--color-text-secondary)",
+              maxWidth: "420px",
+              lineHeight: 1.6,
+            }}
+          >
+            카메라 앞의 감정을 코드 위의 경험으로 바꿉니다.
+            <br />
+            사용자의 마음을 읽고, 경험을 설계합니다.
+          </motion.p>
+
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            style={{ marginTop: "var(--space-10)" }}
+            transition={{ duration: 0.8, delay: 1.2 }}
+            style={{ marginTop: "var(--space-8)" }}
           >
             <Link
               href="/about"
@@ -171,10 +133,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 2, duration: 1 }}
-            style={{
-              position: "absolute",
-              bottom: "var(--space-10)",
-            }}
+            style={{ position: "absolute", bottom: "var(--space-10)" }}
           >
             <motion.div
               animate={{ y: [0, 8, 0] }}
@@ -204,17 +163,18 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ── Section 2: TIL Categories ── */}
-      <section
-        style={{
-          background: "var(--color-bg-secondary)",
-        }}
-      >
+      {/* ── TIL Categories ── */}
+      <section style={{ background: "var(--color-bg-secondary)" }}>
         <div
           className="section-container"
           style={{ padding: "var(--space-16) var(--content-padding)" }}
         >
-          <RevealText>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.7, ease }}
+          >
             <div style={{ textAlign: "center", marginBottom: "var(--space-8)" }}>
               <h2
                 className="font-bold tracking-tight"
@@ -232,7 +192,7 @@ export default function Home() {
                 매일의 학습을 기록합니다
               </p>
             </div>
-          </RevealText>
+          </motion.div>
 
           <div
             className="grid gap-5 md:grid-cols-2 lg:grid-cols-3"
@@ -253,10 +213,7 @@ export default function Home() {
                   </p>
                   <h3
                     className="font-semibold"
-                    style={{
-                      fontSize: "var(--font-headline)",
-                      marginTop: "var(--space-3)",
-                    }}
+                    style={{ fontSize: "var(--font-headline)", marginTop: "var(--space-3)" }}
                   >
                     {cat.title}
                   </h3>
@@ -276,7 +233,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Section 3: Portfolio CTA ── */}
+      {/* ── Portfolio CTA ── */}
       <section
         style={{
           padding: "var(--space-16) 0",
@@ -287,12 +244,14 @@ export default function Home() {
       >
         <div
           className="section-container"
-          style={{
-            padding: "0 var(--content-padding)",
-            textAlign: "center",
-          }}
+          style={{ padding: "0 var(--content-padding)", textAlign: "center" }}
         >
-          <RevealText>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.7, ease }}
+          >
             <p
               style={{
                 fontSize: "var(--font-footnote)",
@@ -329,7 +288,7 @@ export default function Home() {
             >
               Portfolio 보기
             </Link>
-          </RevealText>
+          </motion.div>
         </div>
       </section>
     </div>
