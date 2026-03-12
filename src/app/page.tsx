@@ -211,10 +211,10 @@ export default function Home() {
       >
         <div
           className="section-container"
-          style={{ padding: "var(--space-24) var(--content-padding)" }}
+          style={{ padding: "var(--space-16) var(--content-padding)" }}
         >
           <RevealText>
-            <div style={{ textAlign: "center", marginBottom: "var(--space-12)" }}>
+            <div style={{ textAlign: "center", marginBottom: "var(--space-8)" }}>
               <h2
                 className="font-bold tracking-tight"
                 style={{ fontSize: "var(--font-title-1)" }}
@@ -223,7 +223,7 @@ export default function Home() {
               </h2>
               <p
                 style={{
-                  marginTop: "var(--space-4)",
+                  marginTop: "var(--space-2)",
                   fontSize: "var(--font-callout)",
                   color: "var(--color-text-secondary)",
                 }}
@@ -278,7 +278,7 @@ export default function Home() {
       {/* ── Section 3: Portfolio CTA ── */}
       <section
         style={{
-          minHeight: "60vh",
+          padding: "var(--space-16) 0",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -287,7 +287,7 @@ export default function Home() {
         <div
           className="section-container"
           style={{
-            padding: "var(--space-24) var(--content-padding)",
+            padding: "0 var(--content-padding)",
             textAlign: "center",
           }}
         >
@@ -319,7 +319,7 @@ export default function Home() {
               href="/portfolio"
               className="inline-block font-medium text-white transition-all hover:scale-105 active:scale-95"
               style={{
-                marginTop: "var(--space-10)",
+                marginTop: "var(--space-8)",
                 background: "var(--color-accent)",
                 borderRadius: "980px",
                 padding: "var(--space-3) var(--space-10)",

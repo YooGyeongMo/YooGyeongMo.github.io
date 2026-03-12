@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import Link from "next/link";
 
 /* ─── Scroll Reveal ─── */
 
@@ -15,10 +16,10 @@ function Reveal({
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start 90%", "start 50%"],
+    offset: ["start 95%", "start 60%"],
   });
   const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  const y = useTransform(scrollYProgress, [0, 1], [30, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], [24, 0]);
 
   return (
     <motion.div ref={ref} style={{ opacity, y, ...style }}>
@@ -29,11 +30,7 @@ function Reveal({
 
 /* ─── Device Mockup ─── */
 
-function DeviceMockup({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function DeviceMockup({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
@@ -50,7 +47,7 @@ function DeviceMockup({
         flexShrink: 0,
       }}
     >
-      {/* Notch */}
+      {/* Dynamic Island */}
       <div
         style={{
           position: "absolute",
@@ -69,55 +66,75 @@ function DeviceMockup({
   );
 }
 
+/* ─── Project Data ─── */
+
+const projects = [
+  {
+    slug: "susa24",
+    number: "01",
+    title: "SUSA24",
+    tagline: "범죄수사 사건 관리 및 위치 데이터 시각화",
+    description: "현장에서 실제로 쓰이는 앱을 만들었습니다.",
+    tags: ["SwiftUI", "UIKit", "CoreData", "MapKit", "Swift 6", "Metal", "AVFoundation"],
+    features: [
+      {
+        title: "커스텀 상태관리",
+        desc: "TCA에서 영감받은 DWStore 아키텍처.\n단방향 데이터 플로우로 예측 가능한 상태 관리.",
+      },
+      {
+        title: "지도 시각화",
+        desc: "NMapsMap + CoreData 기반 실시간 위치 데이터 렌더링.\n필터별 핀 분류.",
+      },
+      {
+        title: "Swift 6 Concurrency",
+        desc: "Strict Concurrency 환경에서\n@MainActor, Sendable 완전 적용.",
+      },
+      {
+        title: "Liquid Glass",
+        desc: "Metal shader 기반\n커스텀 글래스모피즘 이펙트.",
+      },
+    ],
+    bg: "dark" as const,
+  },
+];
+
 /* ─── Page ─── */
 
 export default function PortfolioPage() {
   return (
     <div>
-      {/* ── Hero ── */}
+      {/* ── Navigation Bar: Product Carousel (Apple style) ── */}
       <section
         style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          padding: "0 var(--content-padding)",
+          paddingTop: "calc(var(--nav-height) + var(--space-8))",
+          paddingBottom: "var(--space-8)",
+          borderBottom: "1px solid var(--color-separator)",
         }}
       >
-        <div>
-          <motion.p
+        <div
+          className="section-container"
+          style={{ padding: "0 var(--content-padding)" }}
+        >
+          <motion.h1
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            style={{
-              fontSize: "var(--font-callout)",
-              color: "var(--color-text-tertiary)",
-              letterSpacing: "0.04em",
-              marginBottom: "var(--space-5)",
-            }}
-          >
-            PORTFOLIO
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.4 }}
+            transition={{ duration: 0.8 }}
             className="font-bold"
             style={{
-              fontSize: "clamp(2rem, 5vw, 3.5rem)",
+              fontSize: "var(--font-large-title)",
               letterSpacing: "-0.03em",
-              lineHeight: 1.15,
+              textAlign: "center",
             }}
           >
-            만들어온 것들.
+            Portfolio
           </motion.h1>
           <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
             style={{
-              marginTop: "var(--space-4)",
+              textAlign: "center",
+              marginTop: "var(--space-2)",
               fontSize: "var(--font-body)",
               color: "var(--color-text-secondary)",
             }}
@@ -127,73 +144,110 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      {/* ── Project 1: SUSA24 (Dark section, Apple style) ── */}
-      <section
-        style={{
-          background: "var(--color-bg-dark)",
-          padding: "var(--space-24) 0",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          className="section-container"
-          style={{ padding: "0 var(--content-padding)" }}
+      {/* ── Project Sections (apple.com/iphone style) ── */}
+      {projects.map((project) => (
+        <section
+          key={project.slug}
+          style={{
+            background:
+              project.bg === "dark"
+                ? "var(--color-bg-dark)"
+                : "var(--color-bg)",
+            padding: "var(--space-24) 0",
+            overflow: "hidden",
+          }}
         >
-          <Reveal>
-            <p
-              style={{
-                fontSize: "var(--font-footnote)",
-                color: "var(--color-accent)",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                fontWeight: 600,
-              }}
-            >
-              Project 01
-            </p>
-          </Reveal>
-
-          <Reveal>
-            <h2
-              className="font-bold"
-              style={{
-                fontSize: "clamp(2rem, 5vw, 3.5rem)",
-                color: "var(--color-text-on-dark)",
-                letterSpacing: "-0.03em",
-                lineHeight: 1.1,
-                marginTop: "var(--space-4)",
-              }}
-            >
-              SUSA24
-            </h2>
-          </Reveal>
-
-          <Reveal>
-            <p
-              style={{
-                marginTop: "var(--space-4)",
-                fontSize: "var(--font-title-3)",
-                color: "var(--color-text-secondary-on-dark)",
-                maxWidth: "520px",
-                lineHeight: 1.5,
-              }}
-            >
-              범죄수사 사건 관리 및 위치 데이터 시각화.
-              <br />
-              현장에서 실제로 쓰이는 앱을 만들었습니다.
-            </p>
-          </Reveal>
-
-          {/* Device + Features */}
           <div
-            className="flex flex-col items-center md:flex-row md:items-start md:justify-between"
-            style={{
-              marginTop: "var(--space-16)",
-              gap: "var(--space-12)",
-            }}
+            className="section-container"
+            style={{ padding: "0 var(--content-padding)" }}
           >
-            {/* Device Mockup */}
-            <Reveal style={{ display: "flex", justifyContent: "center", flex: 1 }}>
+            {/* Project Header */}
+            <div style={{ textAlign: "center" }}>
+              <Reveal>
+                <p
+                  style={{
+                    fontSize: "var(--font-footnote)",
+                    color: "var(--color-accent)",
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    fontWeight: 600,
+                  }}
+                >
+                  Project {project.number}
+                </p>
+              </Reveal>
+
+              <Reveal>
+                <h2
+                  className="font-bold"
+                  style={{
+                    fontSize: "clamp(3rem, 8vw, 5rem)",
+                    color:
+                      project.bg === "dark"
+                        ? "var(--color-text-on-dark)"
+                        : "var(--color-text-primary)",
+                    letterSpacing: "-0.04em",
+                    lineHeight: 1.05,
+                    marginTop: "var(--space-3)",
+                  }}
+                >
+                  {project.title}
+                </h2>
+              </Reveal>
+
+              <Reveal>
+                <p
+                  style={{
+                    marginTop: "var(--space-4)",
+                    fontSize: "var(--font-title-3)",
+                    color:
+                      project.bg === "dark"
+                        ? "var(--color-text-secondary-on-dark)"
+                        : "var(--color-text-secondary)",
+                    maxWidth: "520px",
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {project.tagline}.
+                  <br />
+                  {project.description}
+                </p>
+              </Reveal>
+
+              <Reveal>
+                <div
+                  style={{
+                    marginTop: "var(--space-6)",
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: "var(--space-5)",
+                  }}
+                >
+                  <Link
+                    href={`/portfolio/${project.slug}`}
+                    style={{
+                      fontSize: "var(--font-body)",
+                      color: "var(--color-accent)",
+                      textDecoration: "none",
+                      fontWeight: 500,
+                    }}
+                  >
+                    자세히 보기 &rarr;
+                  </Link>
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Device Mockup — Centered, Big */}
+            <Reveal
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "var(--space-16)",
+              }}
+            >
               <DeviceMockup>
                 <div
                   style={{
@@ -211,154 +265,92 @@ export default function PortfolioPage() {
               </DeviceMockup>
             </Reveal>
 
-            {/* Feature List */}
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                gap: "var(--space-8)",
-                justifyContent: "center",
-                minHeight: "400px",
-              }}
-            >
-              {[
-                {
-                  title: "커스텀 상태관리",
-                  desc: "TCA에서 영감받은 DWStore 아키텍처. 단방향 데이터 플로우로 예측 가능한 상태 관리.",
-                },
-                {
-                  title: "지도 시각화",
-                  desc: "NMapsMap + CoreData 기반 실시간 위치 데이터 렌더링. 필터별 핀 분류.",
-                },
-                {
-                  title: "Swift 6 Concurrency",
-                  desc: "Strict Concurrency 환경에서 @MainActor, Sendable 완전 적용.",
-                },
-                {
-                  title: "Liquid Glass",
-                  desc: "Metal shader 기반 커스텀 글래스모피즘 이펙트.",
-                },
-              ].map((feature) => (
-                <Reveal key={feature.title}>
-                  <div
+            {/* Tech Stack Tags */}
+            <Reveal>
+              <div
+                className="flex flex-wrap justify-center"
+                style={{
+                  marginTop: "var(--space-12)",
+                  gap: "var(--space-3)",
+                }}
+              >
+                {project.tags.map((tag) => (
+                  <span
+                    key={tag}
                     style={{
-                      borderLeft: "2px solid var(--color-accent)",
-                      paddingLeft: "var(--space-6)",
+                      background:
+                        project.bg === "dark"
+                          ? "rgba(255, 255, 255, 0.06)"
+                          : "var(--color-bg-secondary)",
+                      border: `1px solid ${
+                        project.bg === "dark"
+                          ? "var(--color-separator-on-dark)"
+                          : "var(--color-separator)"
+                      }`,
+                      borderRadius: "980px",
+                      padding: "var(--space-2) var(--space-5)",
+                      fontSize: "var(--font-footnote)",
+                      color:
+                        project.bg === "dark"
+                          ? "var(--color-text-secondary-on-dark)"
+                          : "var(--color-text-secondary)",
                     }}
                   >
-                    <h4
-                      className="font-semibold"
-                      style={{
-                        fontSize: "var(--font-headline)",
-                        color: "var(--color-text-on-dark)",
-                      }}
-                    >
-                      {feature.title}
-                    </h4>
-                    <p
-                      style={{
-                        marginTop: "var(--space-2)",
-                        fontSize: "var(--font-subhead)",
-                        color: "var(--color-text-secondary-on-dark)",
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      {feature.desc}
-                    </p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </Reveal>
           </div>
+        </section>
+      ))}
 
-          {/* Tech Stack */}
-          <Reveal>
-            <div
-              className="flex flex-wrap justify-center"
-              style={{
-                marginTop: "var(--space-16)",
-                gap: "var(--space-3)",
-              }}
-            >
-              {[
-                "SwiftUI",
-                "UIKit",
-                "CoreData",
-                "MapKit",
-                "Swift 6",
-                "Metal",
-                "AVFoundation",
-              ].map((tag) => (
-                <span
-                  key={tag}
-                  style={{
-                    background: "rgba(255, 255, 255, 0.06)",
-                    border: "1px solid var(--color-separator-on-dark)",
-                    borderRadius: "980px",
-                    padding: "var(--space-2) var(--space-5)",
-                    fontSize: "var(--font-footnote)",
-                    color: "var(--color-text-secondary-on-dark)",
-                  }}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ── Project 2: Coming Soon (Light section) ── */}
+      {/* ── Coming Soon ── */}
       <section
         style={{
-          minHeight: "60vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          padding: "var(--space-24) 0",
           background: "var(--color-bg-secondary)",
+          textAlign: "center",
         }}
       >
-        <div style={{ textAlign: "center" }}>
-          <Reveal>
-            <p
-              style={{
-                fontSize: "var(--font-footnote)",
-                color: "var(--color-accent)",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                fontWeight: 600,
-              }}
-            >
-              Project 02
-            </p>
-            <h2
-              className="font-bold"
-              style={{
-                fontSize: "var(--font-title-1)",
-                letterSpacing: "-0.02em",
-                marginTop: "var(--space-4)",
-              }}
-            >
-              Coming Soon.
-            </h2>
-            <p
-              style={{
-                marginTop: "var(--space-4)",
-                fontSize: "var(--font-body)",
-                color: "var(--color-text-secondary)",
-              }}
-            >
-              다음 프로젝트를 준비하고 있습니다.
-            </p>
-          </Reveal>
-        </div>
+        <Reveal>
+          <p
+            style={{
+              fontSize: "var(--font-footnote)",
+              color: "var(--color-accent)",
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              fontWeight: 600,
+            }}
+          >
+            Project 02
+          </p>
+          <h2
+            className="font-bold"
+            style={{
+              fontSize: "var(--font-title-1)",
+              letterSpacing: "-0.02em",
+              marginTop: "var(--space-4)",
+            }}
+          >
+            Coming Soon.
+          </h2>
+          <p
+            style={{
+              marginTop: "var(--space-3)",
+              fontSize: "var(--font-body)",
+              color: "var(--color-text-secondary)",
+            }}
+          >
+            다음 프로젝트를 준비하고 있습니다.
+          </p>
+        </Reveal>
       </section>
 
       {/* ── CTA ── */}
       <section
         style={{
-          minHeight: "50vh",
+          padding: "var(--space-20) 0",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -382,7 +374,7 @@ export default function PortfolioPage() {
               href="mailto:contact@example.com"
               className="inline-block font-medium text-white transition-all hover:scale-105 active:scale-95"
               style={{
-                marginTop: "var(--space-8)",
+                marginTop: "var(--space-6)",
                 background: "var(--color-accent)",
                 borderRadius: "980px",
                 padding: "var(--space-3) var(--space-10)",

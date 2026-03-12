@@ -49,7 +49,7 @@ const skillCategories = [
   { label: "Tools", value: 0.7 },
 ];
 
-/* ─── Scroll Reveal (wider trigger) ─── */
+/* ─── Scroll Reveal ─── */
 
 function Reveal({
   children,
@@ -93,7 +93,6 @@ function RadarChart() {
     };
   }
 
-  // Grid polygons
   const gridPolygons = Array.from({ length: levels }, (_, level) => {
     const r = (maxR / levels) * (level + 1);
     const points = Array.from({ length: count }, (_, i) => {
@@ -103,19 +102,18 @@ function RadarChart() {
     return points;
   });
 
-  // Data polygon
-  const dataPoints = skillCategories.map((s, i) => {
-    const p = getPoint(i, maxR * s.value);
-    return `${p.x},${p.y}`;
-  }).join(" ");
+  const dataPoints = skillCategories
+    .map((s, i) => {
+      const p = getPoint(i, maxR * s.value);
+      return `${p.x},${p.y}`;
+    })
+    .join(" ");
 
-  // Axis lines
   const axes = Array.from({ length: count }, (_, i) => {
     const p = getPoint(i, maxR);
     return { x1: cx, y1: cy, x2: p.x, y2: p.y };
   });
 
-  // Labels
   const labels = skillCategories.map((s, i) => {
     const p = getPoint(i, maxR + 30);
     return { ...s, x: p.x, y: p.y };
@@ -127,11 +125,10 @@ function RadarChart() {
       style={{
         display: "flex",
         justifyContent: "center",
-        padding: "var(--space-8) 0",
+        padding: "var(--space-6) 0",
       }}
     >
       <svg viewBox="0 0 400 400" width="360" height="360">
-        {/* Grid */}
         {gridPolygons.map((points, i) => (
           <motion.polygon
             key={i}
@@ -146,7 +143,6 @@ function RadarChart() {
           />
         ))}
 
-        {/* Axes */}
         {axes.map((axis, i) => (
           <motion.line
             key={i}
@@ -162,7 +158,6 @@ function RadarChart() {
           />
         ))}
 
-        {/* Data area */}
         <motion.polygon
           points={dataPoints}
           fill="var(--color-accent)"
@@ -175,7 +170,6 @@ function RadarChart() {
           style={{ transformOrigin: `${cx}px ${cy}px` }}
         />
 
-        {/* Data points */}
         {skillCategories.map((s, i) => {
           const p = getPoint(i, maxR * s.value);
           return (
@@ -192,7 +186,6 @@ function RadarChart() {
           );
         })}
 
-        {/* Labels */}
         {labels.map((label, i) => (
           <motion.text
             key={i}
@@ -335,66 +328,63 @@ function HorizontalTimeline() {
 export default function AboutPage() {
   return (
     <div>
-      {/* ── Intro ── */}
+      {/* ── Intro (rauno.me style — bigger, bolder) ── */}
       <section
         style={{
-          height: "100vh",
+          minHeight: "100vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          textAlign: "center",
           padding: "0 var(--content-padding)",
         }}
       >
-        <div>
+        <div style={{ maxWidth: "720px" }}>
           <motion.p
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
             style={{
-              fontSize: "var(--font-footnote)",
+              fontSize: "var(--font-subhead)",
               color: "var(--color-text-tertiary)",
-              letterSpacing: "0.06em",
+              letterSpacing: "0.04em",
               textTransform: "uppercase",
-              marginBottom: "var(--space-5)",
+              marginBottom: "var(--space-6)",
             }}
           >
             About
           </motion.p>
+
           <motion.h1
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.4 }}
             className="font-bold"
             style={{
-              fontSize: "clamp(2rem, 5vw, 3.5rem)",
-              letterSpacing: "-0.03em",
-              lineHeight: 1.15,
+              fontSize: "clamp(2.5rem, 6vw, 4.5rem)",
+              letterSpacing: "-0.035em",
+              lineHeight: 1.1,
             }}
           >
-            안녕하세요,
+            <span style={{ color: "var(--color-accent)" }}>유경모</span>는
             <br />
-            <span style={{ color: "var(--color-accent)" }}>유경모</span>
-            입니다.
+            iOS 개발자입니다.
           </motion.h1>
+
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
             style={{
-              marginTop: "var(--space-6)",
-              fontSize: "var(--font-body)",
+              marginTop: "var(--space-8)",
+              fontSize: "var(--font-title-3)",
               color: "var(--color-text-secondary)",
-              maxWidth: "420px",
-              marginLeft: "auto",
-              marginRight: "auto",
               lineHeight: 1.7,
+              maxWidth: "560px",
             }}
           >
-            과거엔 배우, 현재엔 개발자.
-            <br />
+            과거엔 배우로 카메라 앞에 섰고,
+            지금은 개발자로 사용자 앞에 섭니다.
             무대가 바뀌었을 뿐,
-            <br />
             사람의 마음을 움직이는 일을 합니다.
           </motion.p>
         </div>
@@ -404,14 +394,16 @@ export default function AboutPage() {
       <section>
         <div
           className="section-container"
-          style={{ padding: "var(--space-8) var(--content-padding) var(--space-4)" }}
+          style={{
+            padding: "var(--space-6) var(--content-padding) var(--space-4)",
+          }}
         >
           <Reveal>
             <p
               style={{
-                fontSize: "var(--font-footnote)",
+                fontSize: "var(--font-subhead)",
                 color: "var(--color-text-tertiary)",
-                letterSpacing: "0.06em",
+                letterSpacing: "0.04em",
                 textTransform: "uppercase",
                 marginBottom: "var(--space-2)",
               }}
@@ -420,7 +412,10 @@ export default function AboutPage() {
             </p>
             <h2
               className="font-bold"
-              style={{ fontSize: "var(--font-title-1)", letterSpacing: "-0.02em" }}
+              style={{
+                fontSize: "clamp(1.75rem, 4vw, 2.75rem)",
+                letterSpacing: "-0.03em",
+              }}
             >
               지나온 길
             </h2>
@@ -433,19 +428,19 @@ export default function AboutPage() {
       <section
         style={{
           background: "var(--color-bg-dark)",
-          padding: "var(--space-16) 0",
+          padding: "var(--space-20) 0",
         }}
       >
         <div
           className="section-container"
-          style={{ padding: "0 var(--content-padding)", maxWidth: "640px" }}
+          style={{ padding: "0 var(--content-padding)", maxWidth: "680px" }}
         >
           <Reveal>
             <p
               style={{
-                fontSize: "var(--font-footnote)",
+                fontSize: "var(--font-subhead)",
                 color: "var(--color-text-secondary-on-dark)",
-                letterSpacing: "0.06em",
+                letterSpacing: "0.04em",
                 textTransform: "uppercase",
                 marginBottom: "var(--space-6)",
               }}
@@ -456,17 +451,18 @@ export default function AboutPage() {
 
           <Reveal>
             <h3
-              className="font-semibold"
+              className="font-bold"
               style={{
-                fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)",
+                fontSize: "clamp(1.75rem, 4vw, 2.75rem)",
                 color: "var(--color-text-on-dark)",
-                letterSpacing: "-0.02em",
-                lineHeight: 1.3,
+                letterSpacing: "-0.03em",
+                lineHeight: 1.25,
               }}
             >
               AI가 코드를 쓰는 시대,
               <br />
-              <span style={{ color: "var(--color-accent)" }}>진짜 의사결정</span>은
+              <span style={{ color: "var(--color-accent)" }}>진짜 의사결정</span>
+              은
               <br />
               개발자의 몫입니다.
             </h3>
@@ -504,7 +500,7 @@ export default function AboutPage() {
                   <p
                     className="font-semibold"
                     style={{
-                      fontSize: "var(--font-headline)",
+                      fontSize: "var(--font-title-3)",
                       color: "var(--color-text-on-dark)",
                     }}
                   >
@@ -512,8 +508,8 @@ export default function AboutPage() {
                   </p>
                   <p
                     style={{
-                      marginTop: "var(--space-1)",
-                      fontSize: "var(--font-subhead)",
+                      marginTop: "var(--space-2)",
+                      fontSize: "var(--font-body)",
                       color: "var(--color-text-secondary-on-dark)",
                       lineHeight: 1.6,
                     }}
@@ -528,9 +524,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── Skills Radar ── */}
-      <section
-        style={{ padding: "var(--space-16) 0" }}
-      >
+      <section style={{ padding: "var(--space-16) 0" }}>
         <div
           className="section-container"
           style={{ padding: "0 var(--content-padding)", maxWidth: "640px" }}
@@ -538,9 +532,9 @@ export default function AboutPage() {
           <Reveal>
             <p
               style={{
-                fontSize: "var(--font-footnote)",
+                fontSize: "var(--font-subhead)",
                 color: "var(--color-text-tertiary)",
-                letterSpacing: "0.06em",
+                letterSpacing: "0.04em",
                 textTransform: "uppercase",
                 marginBottom: "var(--space-2)",
               }}
@@ -549,7 +543,10 @@ export default function AboutPage() {
             </p>
             <h2
               className="font-bold"
-              style={{ fontSize: "var(--font-title-1)", letterSpacing: "-0.02em" }}
+              style={{
+                fontSize: "clamp(1.75rem, 4vw, 2.75rem)",
+                letterSpacing: "-0.03em",
+              }}
             >
               강점
             </h2>
@@ -563,12 +560,12 @@ export default function AboutPage() {
                 textAlign: "center",
                 fontSize: "var(--font-footnote)",
                 color: "var(--color-text-tertiary)",
-                marginTop: "var(--space-4)",
+                marginTop: "var(--space-2)",
               }}
             >
-              Swift, UIKit, SwiftUI, CoreData, SwiftData, Combine, RxSwift,
-              GCD, async/await, Actor, MVC, MVVM, Clean Architecture, TCA,
-              Xcode, Git, Tuist, Fastlane, C++, Python
+              Swift, UIKit, SwiftUI, CoreData, SwiftData, Combine, RxSwift, GCD,
+              async/await, Actor, MVC, MVVM, Clean Architecture, TCA, Xcode, Git,
+              Tuist, Fastlane, C++, Python
             </p>
           </Reveal>
         </div>
@@ -588,7 +585,10 @@ export default function AboutPage() {
           <Reveal>
             <h2
               className="font-bold"
-              style={{ fontSize: "var(--font-title-1)", letterSpacing: "-0.02em" }}
+              style={{
+                fontSize: "clamp(1.75rem, 4vw, 2.75rem)",
+                letterSpacing: "-0.03em",
+              }}
             >
               함께 이야기해요.
             </h2>
