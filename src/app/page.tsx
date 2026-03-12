@@ -46,24 +46,16 @@ const categories = [
   },
 ];
 
-const values = [
-  { number: "365+", label: "일의 학습 기록" },
-  { number: "6", label: "개의 학습 카테고리" },
-  { number: "∞", label: "성장에 대한 열정" },
-];
-
 /* ─── Scroll Text Reveal ─── */
 
 function RevealText({
   children,
   className,
   style,
-  delay = 0,
 }: {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
-  delay?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -74,12 +66,7 @@ function RevealText({
   const y = useTransform(scrollYProgress, [0, 1], [40, 0]);
 
   return (
-    <motion.div
-      ref={ref}
-      style={{ opacity, y, ...style }}
-      className={className}
-      transition={{ delay }}
-    >
+    <motion.div ref={ref} style={{ opacity, y, ...style }} className={className}>
       {children}
     </motion.div>
   );
@@ -120,17 +107,19 @@ export default function Home() {
             justifyContent: "center",
             textAlign: "center",
             padding: "0 var(--content-padding)",
+            marginTop: "-3vh",
           }}
         >
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
             style={{
-              fontSize: "var(--font-callout)",
-              color: "var(--color-text-tertiary)",
-              letterSpacing: "0.04em",
-              marginBottom: "var(--space-6)",
+              fontSize: "var(--font-title-3)",
+              color: "var(--color-text-secondary)",
+              letterSpacing: "-0.01em",
+              marginBottom: "var(--space-5)",
+              fontWeight: 500,
             }}
           >
             과거엔 배우, 현재엔 개발자
@@ -139,7 +128,7 @@ export default function Home() {
           <motion.h1
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 1, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="font-bold"
             style={{
               fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
@@ -155,50 +144,24 @@ export default function Home() {
             </span>
           </motion.h1>
 
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-            style={{
-              marginTop: "var(--space-8)",
-              fontSize: "var(--font-title-3)",
-              color: "var(--color-text-secondary)",
-              fontWeight: 400,
-              maxWidth: "520px",
-            }}
-          >
-            매일 배우고, 기록하고, 성장합니다.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.1 }}
-            className="flex items-center"
-            style={{ marginTop: "var(--space-12)", gap: "var(--space-4)" }}
+            transition={{ duration: 0.8, delay: 1 }}
+            style={{ marginTop: "var(--space-10)" }}
           >
             <Link
-              href="/portfolio"
+              href="/about"
               className="font-medium text-white transition-all hover:scale-105 active:scale-95"
               style={{
                 background: "var(--color-accent)",
                 borderRadius: "980px",
-                padding: "var(--space-3) var(--space-8)",
-                fontSize: "var(--font-subhead)",
+                padding: "var(--space-3) var(--space-10)",
+                fontSize: "var(--font-body)",
+                display: "inline-block",
               }}
             >
-              Portfolio
-            </Link>
-            <Link
-              href="/til"
-              className="glass cloud-shadow font-medium transition-all hover:scale-105 active:scale-95"
-              style={{
-                borderRadius: "980px",
-                padding: "var(--space-3) var(--space-8)",
-                fontSize: "var(--font-subhead)",
-              }}
-            >
-              Today I Learned
+              더 알아보기
             </Link>
           </motion.div>
 
@@ -240,110 +203,7 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ── Section 2: Philosophy (Sticky text reveal) ── */}
-      <section
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "var(--color-bg-secondary)",
-        }}
-      >
-        <div
-          className="section-container"
-          style={{
-            padding: "var(--space-24) var(--content-padding)",
-            textAlign: "center",
-          }}
-        >
-          <RevealText>
-            <p
-              style={{
-                fontSize: "clamp(1.5rem, 4vw, 2.75rem)",
-                fontWeight: 600,
-                letterSpacing: "-0.03em",
-                lineHeight: 1.3,
-                maxWidth: "720px",
-                margin: "0 auto",
-              }}
-            >
-              좋은 앱은
-              <br />
-              <span style={{ color: "var(--color-accent)" }}>
-                좋은 경험
-              </span>
-              에서 시작됩니다.
-            </p>
-          </RevealText>
-
-          <RevealText delay={0.1}>
-            <p
-              style={{
-                marginTop: "var(--space-8)",
-                fontSize: "var(--font-body)",
-                color: "var(--color-text-secondary)",
-                maxWidth: "480px",
-                margin: "var(--space-8) auto 0",
-                lineHeight: 1.7,
-              }}
-            >
-              Apple의 Human Interface Guidelines를 깊이 이해하고,
-              사용자가 자연스럽게 느끼는 인터페이스를 만듭니다.
-            </p>
-          </RevealText>
-        </div>
-      </section>
-
-      {/* ── Section 3: Numbers ── */}
-      <section
-        style={{
-          minHeight: "60vh",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <div
-          className="section-container"
-          style={{ padding: "var(--space-24) var(--content-padding)" }}
-        >
-          <div
-            className="grid md:grid-cols-3"
-            style={{
-              gap: "var(--space-8)",
-              maxWidth: "720px",
-              margin: "0 auto",
-              textAlign: "center",
-            }}
-          >
-            {values.map((v, i) => (
-              <RevealText key={v.label} delay={i * 0.1}>
-                <p
-                  className="font-bold"
-                  style={{
-                    fontSize: "clamp(2rem, 5vw, 3.5rem)",
-                    letterSpacing: "-0.03em",
-                    color: "var(--color-accent)",
-                  }}
-                >
-                  {v.number}
-                </p>
-                <p
-                  style={{
-                    marginTop: "var(--space-2)",
-                    fontSize: "var(--font-subhead)",
-                    color: "var(--color-text-secondary)",
-                  }}
-                >
-                  {v.label}
-                </p>
-              </RevealText>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Section 4: TIL Categories ── */}
+      {/* ── Section 2: TIL Categories ── */}
       <section
         style={{
           background: "var(--color-bg-secondary)",
@@ -415,10 +275,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Section 5: Portfolio CTA ── */}
+      {/* ── Section 3: Portfolio CTA ── */}
       <section
         style={{
-          minHeight: "70vh",
+          minHeight: "60vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -434,13 +294,14 @@ export default function Home() {
           <RevealText>
             <p
               style={{
-                fontSize: "var(--font-callout)",
+                fontSize: "var(--font-footnote)",
                 color: "var(--color-text-tertiary)",
-                letterSpacing: "0.04em",
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
                 marginBottom: "var(--space-4)",
               }}
             >
-              PORTFOLIO
+              Portfolio
             </p>
             <h2
               className="font-bold"
@@ -454,9 +315,6 @@ export default function Home() {
               <br />
               확인해보세요.
             </h2>
-          </RevealText>
-
-          <RevealText delay={0.15}>
             <Link
               href="/portfolio"
               className="inline-block font-medium text-white transition-all hover:scale-105 active:scale-95"
@@ -464,7 +322,7 @@ export default function Home() {
                 marginTop: "var(--space-10)",
                 background: "var(--color-accent)",
                 borderRadius: "980px",
-                padding: "var(--space-4) var(--space-10)",
+                padding: "var(--space-3) var(--space-10)",
                 fontSize: "var(--font-body)",
               }}
             >

@@ -29,9 +29,9 @@
   --space-20: 5rem;     /* 80px */
   --space-24: 6rem;     /* 96px */
 
-  /* Colors — Apple System */
-  --color-bg: #ffffff;
-  --color-bg-secondary: #f5f5f7;
+  /* Colors — Apple System (톤 다운) */
+  --color-bg: #fafafa;
+  --color-bg-secondary: #f2f2f7;
   --color-text-primary: #1d1d1f;
   --color-text-secondary: #86868b;
   --color-text-tertiary: #aeaeb2;
