@@ -3,38 +3,40 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 
-/* ─── Timeline Data ─── */
+const revealTransition = { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const };
 
-const timeline = [
+/* ─── Life Journey Data ─── */
+
+const journey = [
   {
     year: "2018",
     title: "배우",
-    description: "카메라 앞에서 감정을 전달하던 시절",
+    description: "카메라 앞에서 감정을 전달하던 시절. 대사 한 줄, 표정 하나에 진심을 담았습니다.",
   },
   {
     year: "2020",
     title: "전환",
-    description: "코드라는 새로운 언어를 만나다",
+    description: "코드라는 새로운 언어를 만났습니다. 화면 너머의 세계가 열렸습니다.",
   },
   {
     year: "2022",
     title: "연사",
-    description: "무대 위에서 기술을 이야기하다",
+    description: "무대 위에서 기술을 이야기했습니다. 사람들 앞에 서는 건 여전히 익숙합니다.",
   },
   {
     year: "2023",
     title: "Apple",
-    description: "Apple로부터 직접 피드백을 받다",
+    description: "Apple로부터 직접 피드백을 받았습니다. 더 깊이 파고들 이유가 생겼습니다.",
   },
   {
     year: "2024",
     title: "해커톤",
-    description: "48시간, 팀과 함께 문제를 풀다",
+    description: "48시간, 팀과 함께 문제를 풀었습니다. 한계는 늘 팀에서 넓어졌습니다.",
   },
   {
     year: "Now",
     title: "개발자",
-    description: "매일 성장하는 iOS 개발자",
+    description: "매일 성장하는 iOS 개발자. 어제보다 나은 코드를 씁니다.",
   },
 ];
 
@@ -49,25 +51,25 @@ const skillCategories = [
   { label: "Tools", value: 0.7 },
 ];
 
-/* ─── Scroll Reveal ─── */
+/* ─── Reveal (whileInView — always reaches full opacity) ─── */
 
 function Reveal({
   children,
   style,
+  delay = 0,
 }: {
   children: React.ReactNode;
   style?: React.CSSProperties;
+  delay?: number;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start 95%", "start 60%"],
-  });
-  const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  const y = useTransform(scrollYProgress, [0, 1], [24, 0]);
-
   return (
-    <motion.div ref={ref} style={{ opacity, y, ...style }}>
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ ...revealTransition, delay }}
+      style={style}
+    >
       {children}
     </motion.div>
   );
@@ -77,7 +79,7 @@ function Reveal({
 
 function RadarChart() {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
 
   const cx = 200;
   const cy = 200;
@@ -95,11 +97,10 @@ function RadarChart() {
 
   const gridPolygons = Array.from({ length: levels }, (_, level) => {
     const r = (maxR / levels) * (level + 1);
-    const points = Array.from({ length: count }, (_, i) => {
+    return Array.from({ length: count }, (_, i) => {
       const p = getPoint(i, r);
       return `${p.x},${p.y}`;
     }).join(" ");
-    return points;
   });
 
   const dataPoints = skillCategories
@@ -142,7 +143,6 @@ function RadarChart() {
             style={{ transformOrigin: `${cx}px ${cy}px` }}
           />
         ))}
-
         {axes.map((axis, i) => (
           <motion.line
             key={i}
@@ -157,7 +157,6 @@ function RadarChart() {
             transition={{ duration: 0.8, delay: 0.3 + i * 0.05 }}
           />
         ))}
-
         <motion.polygon
           points={dataPoints}
           fill="var(--color-accent)"
@@ -169,7 +168,6 @@ function RadarChart() {
           transition={{ duration: 1, delay: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
           style={{ transformOrigin: `${cx}px ${cy}px` }}
         />
-
         {skillCategories.map((s, i) => {
           const p = getPoint(i, maxR * s.value);
           return (
@@ -185,7 +183,6 @@ function RadarChart() {
             />
           );
         })}
-
         {labels.map((label, i) => (
           <motion.text
             key={i}
@@ -212,20 +209,20 @@ function RadarChart() {
   );
 }
 
-/* ─── Horizontal Scroll Timeline ─── */
+/* ─── Life Journey (Album-style horizontal scroll) ─── */
 
-function HorizontalTimeline() {
+function LifeJourney() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   });
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-60%"]);
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-55%"]);
 
   return (
     <div
       ref={containerRef}
-      style={{ height: `${timeline.length * 35}vh`, position: "relative" }}
+      style={{ height: `${journey.length * 40}vh`, position: "relative" }}
     >
       <div
         style={{
@@ -241,50 +238,71 @@ function HorizontalTimeline() {
           style={{
             x,
             display: "flex",
-            gap: "var(--space-6)",
-            paddingLeft: "var(--content-padding)",
+            gap: "var(--space-8)",
+            paddingLeft: "8vw",
             paddingRight: "40vw",
           }}
         >
-          {timeline.map((item, i) => (
+          {journey.map((item, i) => (
             <motion.div
               key={item.year}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05, duration: 0.5 }}
+              initial={{ opacity: 0, y: 40, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-20px" }}
+              transition={{
+                delay: i * 0.08,
+                duration: 0.8,
+                ease: [0.25, 0.46, 0.45, 0.94],
+              }}
               style={{
-                minWidth: "280px",
-                maxWidth: "320px",
-                background: "var(--color-bg-secondary)",
+                minWidth: "340px",
+                maxWidth: "380px",
+                background: "var(--color-bg)",
                 borderRadius: "var(--radius-xl)",
-                padding: "var(--space-8)",
+                overflow: "hidden",
                 flexShrink: 0,
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "space-between",
-                minHeight: "360px",
               }}
               className="cloud-shadow"
             >
+              {/* Photo area — album style */}
               <div
                 style={{
                   width: "100%",
-                  height: "160px",
-                  borderRadius: "var(--radius-md)",
-                  background: "var(--color-bg)",
+                  height: "240px",
+                  background: "var(--color-bg-secondary)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   fontSize: "var(--font-footnote)",
                   color: "var(--color-text-tertiary)",
-                  border: "1px dashed var(--color-text-tertiary)",
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
-                사진 추가
+                {/* Gradient overlay for album feel */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: "60px",
+                    background:
+                      "linear-gradient(transparent, var(--color-bg))",
+                    zIndex: 1,
+                  }}
+                />
+                <span style={{ opacity: 0.5 }}>사진 추가</span>
               </div>
 
-              <div style={{ marginTop: "var(--space-6)" }}>
+              {/* Content */}
+              <div
+                style={{
+                  padding: "var(--space-5) var(--space-6) var(--space-6)",
+                }}
+              >
                 <p
                   style={{
                     fontSize: "var(--font-caption)",
@@ -296,20 +314,21 @@ function HorizontalTimeline() {
                   {item.year}
                 </p>
                 <h3
-                  className="font-semibold"
+                  className="font-bold"
                   style={{
-                    fontSize: "var(--font-title-3)",
+                    fontSize: "var(--font-title-2)",
                     marginTop: "var(--space-1)",
+                    letterSpacing: "-0.02em",
                   }}
                 >
                   {item.title}
                 </h3>
                 <p
                   style={{
-                    marginTop: "var(--space-1)",
+                    marginTop: "var(--space-2)",
                     fontSize: "var(--font-subhead)",
                     color: "var(--color-text-secondary)",
-                    lineHeight: 1.5,
+                    lineHeight: 1.6,
                   }}
                 >
                   {item.description}
@@ -328,17 +347,19 @@ function HorizontalTimeline() {
 export default function AboutPage() {
   return (
     <div>
-      {/* ── Intro (rauno.me style — bigger, bolder) ── */}
+      {/* ── Intro (rauno.me — big, bold, left-aligned) ── */}
       <section
         style={{
           minHeight: "100vh",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
           padding: "0 var(--content-padding)",
         }}
       >
-        <div style={{ maxWidth: "720px" }}>
+        <div
+          className="section-container"
+          style={{ padding: "0", maxWidth: "780px" }}
+        >
           <motion.p
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -382,20 +403,18 @@ export default function AboutPage() {
               maxWidth: "560px",
             }}
           >
-            과거엔 배우로 카메라 앞에 섰고,
-            지금은 개발자로 사용자 앞에 섭니다.
-            무대가 바뀌었을 뿐,
-            사람의 마음을 움직이는 일을 합니다.
+            과거엔 배우로 카메라 앞에 섰고, 지금은 개발자로 사용자 앞에 섭니다.
+            무대가 바뀌었을 뿐, 사람의 마음을 움직이는 일을 합니다.
           </motion.p>
         </div>
       </section>
 
-      {/* ── Timeline ── */}
+      {/* ── Life Journey (Album-style) ── */}
       <section>
         <div
           className="section-container"
           style={{
-            padding: "var(--space-6) var(--content-padding) var(--space-4)",
+            padding: "0 var(--content-padding) var(--space-2)",
           }}
         >
           <Reveal>
@@ -408,7 +427,7 @@ export default function AboutPage() {
                 marginBottom: "var(--space-2)",
               }}
             >
-              Timeline
+              Life Journey
             </p>
             <h2
               className="font-bold"
@@ -421,7 +440,7 @@ export default function AboutPage() {
             </h2>
           </Reveal>
         </div>
-        <HorizontalTimeline />
+        <LifeJourney />
       </section>
 
       {/* ── Philosophy (Dark) ── */}
@@ -449,7 +468,7 @@ export default function AboutPage() {
             </p>
           </Reveal>
 
-          <Reveal>
+          <Reveal delay={0.1}>
             <h3
               className="font-bold"
               style={{
@@ -489,8 +508,8 @@ export default function AboutPage() {
                 keyword: "기본기",
                 text: "도구는 바뀌어도 본질은 바뀌지 않습니다. 기본기가 답입니다.",
               },
-            ].map((item) => (
-              <Reveal key={item.keyword}>
+            ].map((item, i) => (
+              <Reveal key={item.keyword} delay={0.15 + i * 0.08}>
                 <div
                   style={{
                     borderLeft: "2px solid var(--color-accent)",
@@ -523,7 +542,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── Skills Radar ── */}
+      {/* ── Skills ── */}
       <section style={{ padding: "var(--space-16) 0" }}>
         <div
           className="section-container"
@@ -548,7 +567,7 @@ export default function AboutPage() {
                 letterSpacing: "-0.03em",
               }}
             >
-              강점
+              Skills
             </h2>
           </Reveal>
 
